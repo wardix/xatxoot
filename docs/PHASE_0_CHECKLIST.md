@@ -60,7 +60,7 @@
 ---
 
 ### Bagian 4: Modul Autentikasi Backend (Protokol TDD RED-GREEN)
-- [ ] **Task 0.12 (RED)**: Tulis file unit & integration test `apps/api/src/modules/auth/auth.test.ts`:
+- [x] **Task 0.12 (RED)**: Tulis file unit & integration test `apps/api/src/modules/auth/auth.test.ts`:
   - Pengujian hashing password Argon2id.
   - Pengujian `POST /api/v1/auth/setup` (membuat singleton organization & admin pertama, menolak jika sudah di-setup).
   - Pengujian `POST /api/v1/auth/login` (kredensial valid menghasilkan token, kredensial salah menghasilkan 401).
