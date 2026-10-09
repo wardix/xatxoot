@@ -50,7 +50,7 @@
 - [x] **Task 0.8**: Inisialisasi `apps/api/package.json` dengan dependensi (`hono`, `@hono/node-server`, `zod`, dll.) dan skrip test runner.
 - [x] **Task 0.9**: Buat modul koneksi database `apps/api/src/db/index.ts` menggunakan native Bun SQL (`import { SQL } from "bun"`).
 - [x] **Task 0.10**: Buat runner migrasi mandiri `apps/api/src/db/migrate.ts` yang membaca file `.sql` di folder `migrations/` dan mencatatnya ke tabel `schema_migrations`.
-- [ ] **Task 0.11**: Buat file migrasi `apps/api/migrations/001_init.sql` yang mencakup tabel fondasi:
+- [x] **Task 0.11**: Buat file migrasi `apps/api/migrations/001_init.sql` yang mencakup tabel fondasi:
   - `organizations` (singleton profil instansi).
   - `users` (pengguna/staf).
   - `roles` & `permissions` & `user_roles`.
