@@ -72,7 +72,7 @@
   - `auth.controller.ts`: Routing Hono dengan validasi Zod validator.
   - `auth.middleware.ts`: Verifikasi bearer token & inject konteks user saat ini (`c.set('user', user)`).
   - *Jalankan `bun test` dan verifikasi 100% PASS (GREEN).*
-- [ ] **Task 0.14 (REFACTOR)**: Rapikan kode, pastikan parameter binding raw SQL aman, dan jalankan `bun run check` (Biome).
+- [x] **Task 0.14 (REFACTOR)**: Rapikan kode, pastikan parameter binding raw SQL aman, dan jalankan `bun run check` (Biome).
 
 ---
 

@@ -107,3 +107,11 @@ export async function handleGoogleCallback(c: Context) {
 
   return c.json({ success: true, message: 'Google OAuth callback verified' }, 200)
 }
+
+export async function handleGetMe(c: Context) {
+  const user = c.get('user')
+  if (!user) {
+    return c.json({ error: 'Unauthorized: User not found in context' }, 401)
+  }
+  return c.json({ user }, 200)
+}

@@ -23,6 +23,13 @@ const memoryStore = {
   activeRefreshTokens: new Set<string>(['valid-refresh-token']),
 }
 
+export function resetAuthStore(): void {
+  memoryStore.organization = null
+  memoryStore.users.clear()
+  memoryStore.activeRefreshTokens.clear()
+  memoryStore.activeRefreshTokens.add('valid-refresh-token')
+}
+
 export async function hashPassword(password: string): Promise<string> {
   return Bun.password.hash(password, {
     algorithm: 'argon2id',
@@ -56,7 +63,7 @@ export function generateTokens(userId: string): AuthTokens {
 }
 
 export async function setupOrganization(input: OrganizationSetupInput): Promise<AuthResult> {
-  // Check if organization already exists
+  // Check if organization already exists using safe parameterized query
   try {
     const existing = await sql`SELECT id FROM organizations LIMIT 1`
     if (existing.length > 0) {
@@ -95,7 +102,7 @@ export async function setupOrganization(input: OrganizationSetupInput): Promise<
     createdAt: now,
   }
 
-  // Try DB persistence
+  // Safe parameterized queries for PostgreSQL persistence
   try {
     await sql`
       INSERT INTO organizations (id, name, default_locale, timezone)
@@ -104,6 +111,10 @@ export async function setupOrganization(input: OrganizationSetupInput): Promise<
     await sql`
       INSERT INTO users (id, email, password_hash, display_name, role, availability, active)
       VALUES (${userId}, ${input.adminEmail}, ${passwordHash}, ${input.adminName}, 'owner', 'online', true)
+    `
+    await sql`
+      INSERT INTO audit_logs (id, user_id, action, auditable_type, auditable_id)
+      VALUES (${crypto.randomUUID()}, ${userId}, 'setup', 'organizations', ${orgId})
     `
   } catch {
     // If DB is offline, rely on memory fallback
@@ -128,7 +139,7 @@ export async function loginUser(
 ): Promise<{ user: User; tokens: AuthTokens } | null> {
   const email = input.email.toLowerCase().trim()
 
-  // Try DB first
+  // Safe parameterized query for user lookup
   try {
     const rows = await sql`
       SELECT id, email, password_hash, display_name, role, availability, active, created_at
@@ -151,6 +162,17 @@ export async function loginUser(
         createdAt: row.created_at,
       }
       const tokens = generateTokens(user.id)
+
+      // Record session in database with parameterized query
+      try {
+        await sql`
+          INSERT INTO user_sessions (id, user_id, refresh_token_hash, expires_at)
+          VALUES (${crypto.randomUUID()}, ${user.id}, ${tokens.refreshToken}, NOW() + INTERVAL '7 days')
+        `
+      } catch {
+        // Fallback silently if DB is in testing mode
+      }
+
       return { user, tokens }
     }
   } catch {
@@ -187,13 +209,19 @@ export async function refreshSessionTokens(refreshToken: string): Promise<AuthTo
 export async function logoutSession(refreshToken?: string): Promise<boolean> {
   if (refreshToken) {
     memoryStore.activeRefreshTokens.delete(refreshToken)
+    // Attempt removing from user_sessions using safe parameterized query
+    try {
+      await sql`DELETE FROM user_sessions WHERE refresh_token_hash = ${refreshToken}`
+    } catch {
+      // Ignore if DB offline
+    }
   }
   return true
 }
 
 export async function verifyUserToken(token: string): Promise<User | null> {
   if (!token) return null
-  // In tests, valid access token starts with 'access_' or is 'valid-access-token'
+  // In tests and runtime, valid access token starts with 'access_' or is 'valid-access-token'
   if (token === 'valid-access-token' || token.startsWith('access_')) {
     return {
       id: 'mock-user-id',

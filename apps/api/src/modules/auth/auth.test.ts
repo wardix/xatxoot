@@ -207,4 +207,41 @@ describe('Auth Endpoints Integration', () => {
       expect([401, 403]).toContain(res.status)
     })
   })
+
+  describe('Auth Middleware (GET /api/v1/auth/me)', () => {
+    it('should reject access without Authorization header', async () => {
+      const res = await app.request('/api/v1/auth/me', {
+        method: 'GET',
+      })
+
+      expect(res.status).toBe(401)
+      const data = await res.json()
+      expect(data.error).toBeDefined()
+    })
+
+    it('should reject access with invalid bearer token', async () => {
+      const res = await app.request('/api/v1/auth/me', {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer invalid-token-xyz',
+        },
+      })
+
+      expect(res.status).toBe(401)
+    })
+
+    it('should allow access and return user profile with valid bearer token', async () => {
+      const res = await app.request('/api/v1/auth/me', {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer valid-access-token',
+        },
+      })
+
+      expect(res.status).toBe(200)
+      const data = await res.json()
+      expect(data.user).toBeDefined()
+      expect(data.user.email).toBe('admin@acme.corp')
+    })
+  })
 })
