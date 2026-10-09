@@ -28,4 +28,11 @@ describe('Biome configuration (biome.json)', () => {
     expect(config.organizeImports).toBeDefined()
     expect(config.organizeImports.enabled).toBe(true)
   })
+
+  it('should pass biome check command across entire monorepo without errors or warnings', () => {
+    const proc = Bun.spawnSync(['bunx', '@biomejs/biome', 'check', '.'], {
+      cwd: join(import.meta.dir, '..'),
+    })
+    expect(proc.exitCode).toBe(0)
+  })
 })

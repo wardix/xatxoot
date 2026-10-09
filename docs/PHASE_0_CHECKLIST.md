@@ -86,4 +86,4 @@
 
 ### Bagian 6: Verifikasi & Quality Gate
 - [x] **Task 0.19**: Jalankan `bun test` di seluruh monorepo — pastikan 100% lulus tanpa kegagalan.
-- [ ] **Task 0.20**: Jalankan `bun run check` — pastikan linter dan formatter Biome bersih tanpa warning atau error.
+- [x] **Task 0.20**: Jalankan `bun run check` — pastikan linter dan formatter Biome bersih tanpa warning atau error.
