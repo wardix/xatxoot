@@ -67,7 +67,7 @@
   - Pengujian `POST /api/v1/auth/refresh` & `POST /api/v1/auth/logout`.
   - Pengujian domain restriction pada Google OAuth callback.
   - *Jalankan `bun test` dan verifikasi seluruh test berstatus GAGAL (RED).*
-- [ ] **Task 0.13 (GREEN)**: Implementasikan kode service & controller di `apps/api/src/modules/auth/`:
+- [x] **Task 0.13 (GREEN)**: Implementasikan kode service & controller di `apps/api/src/modules/auth/`:
   - `auth.service.ts`: Logika hashing `Bun.password`, pengecekan DB, pembuatan JWT/token.
   - `auth.controller.ts`: Routing Hono dengan validasi Zod validator.
   - `auth.middleware.ts`: Verifikasi bearer token & inject konteks user saat ini (`c.set('user', user)`).
