@@ -77,7 +77,7 @@
 ---
 
 ### Bagian 5: Antarmuka Web Awal (`apps/web`)
-- [ ] **Task 0.15**: Scaffold proyek Vite React 19 di `apps/web/` dengan Tailwind CSS dan Biome.
+- [x] **Task 0.15**: Scaffold proyek Vite React 19 di `apps/web/` dengan Tailwind CSS dan Biome.
 - [ ] **Task 0.16**: Buat halaman `SetupPage` (untuk inisialisasi instalasi pertama kali jika organisasi belum ada).
 - [ ] **Task 0.17**: Buat halaman `LoginPage` dengan form login email/password serta tombol Google SSO.
 - [ ] **Task 0.18**: Buat layout shell dasar (top bar & status sesi).
