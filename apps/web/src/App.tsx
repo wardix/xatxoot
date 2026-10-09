@@ -1,22 +1,20 @@
-import { useState } from 'react'
+import { AppShell } from './components/AppShell'
 
 export function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8 border border-slate-200 text-center">
-        <h1 className="text-2xl font-bold text-emerald-600 mb-2">Xatxoot Web</h1>
-        <p className="text-slate-600 mb-6">WhatsApp Customer Support Platform</p>
-        <button
-          type="button"
-          onClick={() => setCount((prev) => prev + 1)}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors"
-        >
-          Clicked {count} times
-        </button>
+    <AppShell>
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+        <h2 className="text-xl font-bold text-slate-800 mb-2">Workspace Layanan Percakapan</h2>
+        <p className="text-sm text-slate-600 mb-6">
+          Platform Xatxoot Customer Support siap digunakan. Dashboard operasional tiket dan
+          integrasi WhatsApp.
+        </p>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          Fase 0: Fondasi & Auth Selesai
+        </div>
       </div>
-    </div>
+    </AppShell>
   )
 }
 

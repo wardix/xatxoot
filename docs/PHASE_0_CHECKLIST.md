@@ -80,7 +80,7 @@
 - [x] **Task 0.15**: Scaffold proyek Vite React 19 di `apps/web/` dengan Tailwind CSS dan Biome.
 - [x] **Task 0.16**: Buat halaman `SetupPage` (untuk inisialisasi instalasi pertama kali jika organisasi belum ada).
 - [x] **Task 0.17**: Buat halaman `LoginPage` dengan form login email/password serta tombol Google SSO.
-- [ ] **Task 0.18**: Buat layout shell dasar (top bar & status sesi).
+- [x] **Task 0.18**: Buat layout shell dasar (top bar & status sesi).
 
 ---
 
