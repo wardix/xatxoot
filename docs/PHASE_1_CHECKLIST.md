@@ -27,7 +27,7 @@
 ## 📋 Daftar Tugas Atomik (Step-by-Step)
 
 ### Bagian 1: Skema Database & Migrasi (`apps/api/migrations/002_phase1_inbox.sql`)
-- [ ] **Task 1.1**: Buat skema migrasi tabel channels:
+- [x] **Task 1.1**: Buat skema migrasi tabel channels:
   - `channels_whatsapp_cloud` (phone_number_id, waba_id, access_token, webhook_verify_token).
   - `channels_whatsapp_unofficial` (phone_number, session_id, connection_status).
   - `channels_web_widget` (website_token, allowed_domains, widget_color).
