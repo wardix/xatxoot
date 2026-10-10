@@ -36,7 +36,7 @@
 - [x] **Task 1.2**: Buat skema tabel kontak & relasi:
   - `contacts` (name, phone_number, email, avatar_url, custom_attributes).
   - `contact_inboxes` (contact_id, inbox_id, source_id unik).
-- [ ] **Task 1.3**: Buat skema tabel percakapan, tiket, dan pesan:
+- [x] **Task 1.3**: Buat skema tabel percakapan, tiket, dan pesan:
   - `conversations` (contact_id, inbox_id, last_message_at, unread_count).
   - `tickets` (conversation_id, status: `open`|`pending`|`snoozed`|`resolved`, priority, assignee_id, `internal_note`, snoozed_until).
   - `messages` (conversation_id, ticket_id, sender_type, message_type, content, status, external_source_id).
