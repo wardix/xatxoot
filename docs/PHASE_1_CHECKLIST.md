@@ -42,7 +42,7 @@
   - `messages` (conversation_id, ticket_id, sender_type, message_type, content, status, external_source_id).
   - `attachments` (message_id, file_type, file_url, file_size).
   - `labels`, `ticket_labels`, `contact_labels`.
-- [ ] **Task 1.4**: Uji eksekusi migrasi `bun run db:migrate` dan pastikan idempotent.
+- [x] **Task 1.4**: Uji eksekusi migrasi `bun run db:migrate` dan pastikan idempotent.
 
 ---
 

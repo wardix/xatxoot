@@ -10,12 +10,19 @@ export interface MigrationRunnerOptions {
   migrationsDir?: string
 }
 
-export async function runMigrations(options: MigrationRunnerOptions = {}): Promise<string[]> {
+export interface MigrationStatus {
+  applied: string[]
+  pending: string[]
+}
+
+export async function getMigrationStatus(
+  options: MigrationRunnerOptions = {},
+): Promise<MigrationStatus> {
   const sql = options.db || defaultDb
   const dir = options.migrationsDir || DEFAULT_MIGRATIONS_DIR
 
   if (!existsSync(dir)) {
-    return []
+    return { applied: [], pending: [] }
   }
 
   // Ensure schema_migrations table exists
@@ -26,22 +33,46 @@ export async function runMigrations(options: MigrationRunnerOptions = {}): Promi
     );
   `
 
-  // Get already applied migrations
   const rows = await sql`SELECT version FROM schema_migrations;`
   const appliedSet = new Set<string>(rows.map((r: { version: string }) => r.version))
 
-  // Read and sort SQL migration files
   const files = readdirSync(dir)
     .filter((file) => file.endsWith('.sql'))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
 
-  const newlyApplied: string[] = []
+  const applied: string[] = []
+  const pending: string[] = []
 
   for (const file of files) {
     if (appliedSet.has(file)) {
-      continue
+      applied.push(file)
+    } else {
+      pending.push(file)
     }
+  }
 
+  return { applied, pending }
+}
+
+export async function getPendingMigrations(
+  options: MigrationRunnerOptions = {},
+): Promise<string[]> {
+  const { pending } = await getMigrationStatus(options)
+  return pending
+}
+
+export async function runMigrations(options: MigrationRunnerOptions = {}): Promise<string[]> {
+  const sql = options.db || defaultDb
+  const dir = options.migrationsDir || DEFAULT_MIGRATIONS_DIR
+
+  const { pending } = await getMigrationStatus(options)
+  if (pending.length === 0) {
+    return []
+  }
+
+  const newlyApplied: string[] = []
+
+  for (const file of pending) {
     const filePath = join(dir, file)
 
     if (typeof sql.file === 'function') {
