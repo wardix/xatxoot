@@ -219,3 +219,88 @@ export type InboxMember = z.infer<typeof InboxMemberSchema>
 
 export const AddInboxMemberInputSchema = InboxMemberSchema
 export type AddInboxMemberInput = z.infer<typeof AddInboxMemberInputSchema>
+
+// ==========================================
+// Phase 1: Contact, ContactInbox & Company
+// ==========================================
+
+export const ContactTypeSchema = z.enum(['lead', 'customer', 'partner'])
+export type ContactType = z.infer<typeof ContactTypeSchema>
+
+// 1. Company Schemas
+export const CreateCompanyInputSchema = z.object({
+  name: z.string().min(1, 'Nama perusahaan wajib diisi'),
+  domain: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  customAttributes: z.record(z.any()).default({}),
+})
+export type CreateCompanyInput = z.infer<typeof CreateCompanyInputSchema>
+
+export const UpdateCompanyInputSchema = CreateCompanyInputSchema.partial()
+export type UpdateCompanyInput = z.infer<typeof UpdateCompanyInputSchema>
+
+export const CompanySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  domain: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  customAttributes: z.record(z.any()),
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+})
+export type Company = z.infer<typeof CompanySchema>
+
+// 2. Contact Schemas
+export const CreateContactInputSchema = z.object({
+  companyId: z.string().uuid().nullable().optional(),
+  name: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
+  email: z.string().email('Format email tidak valid').nullable().optional().or(z.literal('')),
+  avatarUrl: z.string().url().nullable().optional().or(z.literal('')),
+  identifier: z.string().nullable().optional(),
+  contactType: ContactTypeSchema.default('lead'),
+  customAttributes: z.record(z.any()).default({}),
+  additionalAttributes: z.record(z.any()).default({}),
+  blocked: z.boolean().default(false),
+})
+export type CreateContactInput = z.infer<typeof CreateContactInputSchema>
+
+export const UpdateContactInputSchema = CreateContactInputSchema.partial()
+export type UpdateContactInput = z.infer<typeof UpdateContactInputSchema>
+
+export const ContactSchema = z.object({
+  id: z.string().uuid(),
+  companyId: z.string().uuid().nullable().optional(),
+  name: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
+  email: z.string().nullable().optional(),
+  avatarUrl: z.string().nullable().optional(),
+  identifier: z.string().nullable().optional(),
+  contactType: ContactTypeSchema,
+  customAttributes: z.record(z.any()),
+  additionalAttributes: z.record(z.any()),
+  blocked: z.boolean(),
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+})
+export type Contact = z.infer<typeof ContactSchema>
+
+// 3. ContactInbox Schemas
+export const CreateContactInboxInputSchema = z.object({
+  contactId: z.string().uuid('Contact ID harus berupa UUID valid'),
+  inboxId: z.string().uuid('Inbox ID harus berupa UUID valid'),
+  sourceId: z.string().min(1, 'Source ID wajib diisi'),
+  hmacVerified: z.boolean().default(false),
+})
+export type CreateContactInboxInput = z.infer<typeof CreateContactInboxInputSchema>
+
+export const ContactInboxSchema = z.object({
+  id: z.string().uuid(),
+  contactId: z.string().uuid(),
+  inboxId: z.string().uuid(),
+  sourceId: z.string(),
+  hmacVerified: z.boolean(),
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+})
+export type ContactInbox = z.infer<typeof ContactInboxSchema>
