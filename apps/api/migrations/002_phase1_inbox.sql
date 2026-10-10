@@ -74,6 +74,46 @@ CREATE TABLE IF NOT EXISTS inbox_members (
     UNIQUE (inbox_id, user_id)
 );
 
+-- 7. companies (Corporate / B2B entities for contacts)
+CREATE TABLE IF NOT EXISTS companies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    domain VARCHAR(255),
+    description TEXT,
+    custom_attributes JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 8. contacts (Customer / External Contact Profiles)
+CREATE TABLE IF NOT EXISTS contacts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES companies(id) ON DELETE SET NULL,
+    name VARCHAR(255),
+    phone_number VARCHAR(50),
+    email VARCHAR(255),
+    avatar_url TEXT,
+    identifier VARCHAR(255),
+    contact_type VARCHAR(50) NOT NULL DEFAULT 'lead',
+    custom_attributes JSONB NOT NULL DEFAULT '{}'::jsonb,
+    additional_attributes JSONB NOT NULL DEFAULT '{}'::jsonb,
+    blocked BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 9. contact_inboxes (Unique link between Contact and Inbox with source identifier)
+CREATE TABLE IF NOT EXISTS contact_inboxes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    contact_id UUID NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+    inbox_id UUID NOT NULL REFERENCES inboxes(id) ON DELETE CASCADE,
+    source_id VARCHAR(255) NOT NULL,
+    hmac_verified BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (inbox_id, source_id)
+);
+
 -- Indexes for performance & query lookups
 CREATE INDEX IF NOT EXISTS idx_inboxes_channel ON inboxes(channel_type, channel_id);
 CREATE INDEX IF NOT EXISTS idx_inbox_members_inbox_id ON inbox_members(inbox_id);
@@ -81,3 +121,9 @@ CREATE INDEX IF NOT EXISTS idx_inbox_members_user_id ON inbox_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_channels_whatsapp_cloud_phone_number_id ON channels_whatsapp_cloud(phone_number_id);
 CREATE INDEX IF NOT EXISTS idx_channels_whatsapp_unofficial_session_id ON channels_whatsapp_unofficial(session_id);
 CREATE INDEX IF NOT EXISTS idx_channels_web_widget_website_token ON channels_web_widget(website_token);
+CREATE INDEX IF NOT EXISTS idx_contacts_phone_number ON contacts(phone_number);
+CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
+CREATE INDEX IF NOT EXISTS idx_contacts_company_id ON contacts(company_id);
+CREATE INDEX IF NOT EXISTS idx_contact_inboxes_contact_id ON contact_inboxes(contact_id);
+CREATE INDEX IF NOT EXISTS idx_contact_inboxes_inbox_id ON contact_inboxes(inbox_id);
+CREATE INDEX IF NOT EXISTS idx_contact_inboxes_source_id ON contact_inboxes(inbox_id, source_id);

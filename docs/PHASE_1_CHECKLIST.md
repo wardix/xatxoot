@@ -33,7 +33,7 @@
   - `channels_web_widget` (website_token, allowed_domains, widget_color).
   - `channels_api` (api_key_hash, webhook_url).
   - `inboxes` & `inbox_members`.
-- [ ] **Task 1.2**: Buat skema tabel kontak & relasi:
+- [x] **Task 1.2**: Buat skema tabel kontak & relasi:
   - `contacts` (name, phone_number, email, avatar_url, custom_attributes).
   - `contact_inboxes` (contact_id, inbox_id, source_id unik).
 - [ ] **Task 1.3**: Buat skema tabel percakapan, tiket, dan pesan:
