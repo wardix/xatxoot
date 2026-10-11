@@ -305,6 +305,20 @@ export const ContactInboxSchema = z.object({
 })
 export type ContactInbox = z.infer<typeof ContactInboxSchema>
 
+// 4. Conversation Schemas
+export const ConversationSchema = z.object({
+  id: z.string().uuid(),
+  inboxId: z.string().uuid(),
+  contactId: z.string().uuid().nullable().optional(),
+  contactInboxId: z.string().uuid().nullable().optional(),
+  activeTicketId: z.string().uuid().nullable().optional(),
+  unreadCount: z.number().int().default(0),
+  lastMessageAt: z.string().or(z.date()),
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+})
+export type Conversation = z.infer<typeof ConversationSchema>
+
 // ==========================================
 // Phase 1: Ticket Lifecycle & Transitions
 // ==========================================
