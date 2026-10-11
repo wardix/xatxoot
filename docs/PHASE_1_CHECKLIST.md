@@ -69,7 +69,7 @@
 ---
 
 ### Bagian 5: Modul Backend API (`apps/api`) — Siklus TDD RED-GREEN-REFACTOR
-- [ ] **Task 1.15 (RED)**: Tulis test `inboxes.test.ts` (CRUD Inbox, pairing channel WhatsApp Cloud & Baileys).
+- [x] **Task 1.15 (RED)**: Tulis test `inboxes.test.ts` (CRUD Inbox, pairing channel WhatsApp Cloud & Baileys).
 - [ ] **Task 1.16 (GREEN)**: Implementasi controller & service `inboxes`.
 - [ ] **Task 1.17 (RED)**: Tulis test `whatsapp-cloud.webhook.test.ts` (verifikasi signature `X-Hub-Signature-256`, penerimaan pesan teks & media).
 - [ ] **Task 1.18 (GREEN)**: Implementasi webhook receiver Meta Cloud API.
