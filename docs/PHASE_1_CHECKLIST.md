@@ -54,7 +54,7 @@
 ---
 
 ### Bagian 3: WhatsApp Simulator (`apps/wa-simulator`)
-- [ ] **Task 1.8 (TDD)**: Test suite untuk verifikasi webhook challenge (`hub.mode`, `hub.challenge`, `hub.verify_token`).
+- [x] **Task 1.8 (TDD)**: Test suite untuk verifikasi webhook challenge (`hub.mode`, `hub.challenge`, `hub.verify_token`).
 - [ ] **Task 1.9**: Implementasi mock endpoint Graph API v18.0+ (`POST /v18.0/{phone_number_id}/messages`).
 - [ ] **Task 1.10**: Webhook generator UI/API untuk menembakkan simulasi pesan masuk pelanggan ke `apps/api`.
 

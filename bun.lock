@@ -18,6 +18,14 @@
         "zod": "^4.6.5",
       },
     },
+    "apps/wa-simulator": {
+      "name": "@xatxoot/wa-simulator",
+      "version": "0.1.0",
+      "dependencies": {
+        "@xatxoot/shared": "workspace:*",
+        "hono": "^4.6.14",
+      },
+    },
     "apps/web": {
       "name": "@xatxoot/web",
       "version": "0.1.0",
@@ -246,6 +254,8 @@
     "@xatxoot/api": ["@xatxoot/api@workspace:apps/api"],
 
     "@xatxoot/shared": ["@xatxoot/shared@workspace:packages/shared"],
+
+    "@xatxoot/wa-simulator": ["@xatxoot/wa-simulator@workspace:apps/wa-simulator"],
 
     "@xatxoot/web": ["@xatxoot/web@workspace:apps/web"],
 
