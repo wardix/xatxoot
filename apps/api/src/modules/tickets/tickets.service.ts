@@ -6,6 +6,7 @@ import {
   TicketStatusSchema,
 } from '@xatxoot/shared'
 import { sql } from '../../db'
+import { realtimeService } from '../realtime/realtime.service'
 
 export type { Ticket, TicketStatus, TicketPriority, CreateTicketInput }
 
@@ -230,6 +231,11 @@ export class TicketService {
       // Memory fallback
     }
 
+    realtimeService.broadcast({
+      event: 'ticket.updated',
+      data: { ticket: updated },
+    })
+
     return updated
   }
 
@@ -266,6 +272,11 @@ export class TicketService {
       // Memory fallback
     }
 
+    realtimeService.broadcast({
+      event: 'ticket.updated',
+      data: { ticket: updated },
+    })
+
     return updated
   }
 
@@ -295,6 +306,11 @@ export class TicketService {
     } catch {
       // Memory fallback
     }
+
+    realtimeService.broadcast({
+      event: 'ticket.updated',
+      data: { ticket: updated },
+    })
 
     return updated
   }

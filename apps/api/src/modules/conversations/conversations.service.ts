@@ -8,6 +8,7 @@ import type {
 } from '@xatxoot/shared'
 import { sql } from '../../db'
 import { messageStore, resetMessageStore, saveMessageToStore } from '../messages/message-store'
+import { realtimeService } from '../realtime/realtime.service'
 import { resetTicketStore, ticketService } from '../tickets/tickets.service'
 
 export type { Contact, ContactInbox, Conversation, Message, Ticket, TicketStatus }
@@ -368,13 +369,20 @@ export class ConversationService {
       // Memory fallback
     }
 
-    return {
+    const result = {
       contact,
       conversation,
       ticket,
       isNewTicket,
       message,
     }
+
+    realtimeService.broadcast({
+      event: 'message.created',
+      data: result,
+    })
+
+    return result
   }
 
   async getConversationById(id: string): Promise<ConversationDetail | null> {

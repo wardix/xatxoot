@@ -2,6 +2,7 @@ import type { Attachment, Message, MessageContentType, MessageStatus } from '@xa
 import { sql } from '../../db'
 import { conversationService } from '../conversations/conversations.service'
 import { inboxService } from '../inboxes/inboxes.service'
+import { realtimeService } from '../realtime/realtime.service'
 import { ticketService } from '../tickets/tickets.service'
 import {
   type DispatchedCloudRequest,
@@ -198,6 +199,11 @@ export class MessageService {
     } catch {
       // Memory fallback
     }
+
+    realtimeService.broadcast({
+      event: 'message.status_updated',
+      data: { message: updated },
+    })
 
     return updated
   }
@@ -400,6 +406,11 @@ export class MessageService {
     if (conversation.activeTicketId) {
       await ticketService.recordFirstReply(conversation.activeTicketId)
     }
+
+    realtimeService.broadcast({
+      event: 'message.created',
+      data: { message, conversationId: conversation.id },
+    })
 
     return { message }
   }
