@@ -1,0 +1,23 @@
+{
+  "name": "@xatxoot/wa-gateway",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.24",
+    "@xatxoot/shared": "workspace:*",
+    "pino": "^9.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2"
+  }
+}
