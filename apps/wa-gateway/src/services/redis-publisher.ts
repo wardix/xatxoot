@@ -1,9 +1,12 @@
 import Redis from 'ioredis'
 import {
   REDIS_CHANNEL_WA_INBOUND_MESSAGE,
+  REDIS_CHANNEL_WA_MESSAGE_STATUS,
   REDIS_CHANNEL_WA_SESSION_QR,
   type WaInboundMessageEvent,
   WaInboundMessageEventSchema,
+  type WaMessageStatusEvent,
+  WaMessageStatusEventSchema,
   type WaSessionQrEvent,
   WaSessionQrEventSchema,
 } from '../types/events'
@@ -36,5 +39,10 @@ export class RedisEventPublisher {
   async publishInboundMessage(event: WaInboundMessageEvent): Promise<number> {
     const validated = WaInboundMessageEventSchema.parse(event)
     return this.client.publish(REDIS_CHANNEL_WA_INBOUND_MESSAGE, JSON.stringify(validated))
+  }
+
+  async publishMessageStatus(event: WaMessageStatusEvent): Promise<number> {
+    const validated = WaMessageStatusEventSchema.parse(event)
+    return this.client.publish(REDIS_CHANNEL_WA_MESSAGE_STATUS, JSON.stringify(validated))
   }
 }

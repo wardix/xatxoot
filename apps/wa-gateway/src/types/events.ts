@@ -45,3 +45,14 @@ export const WaInboundMessageEventSchema = z.object({
 })
 
 export type WaInboundMessageEvent = z.infer<typeof WaInboundMessageEventSchema>
+
+export const REDIS_CHANNEL_WA_MESSAGE_STATUS = 'wa:message:status'
+
+export const WaMessageStatusEventSchema = z.object({
+  externalMessageId: z.string().min(1, 'External message ID wajib diisi'),
+  status: z.enum(['sent', 'delivered', 'read', 'failed']),
+  failureReason: z.string().optional(),
+  timestamp: z.string().min(1, 'Timestamp wajib diisi'),
+})
+
+export type WaMessageStatusEvent = z.infer<typeof WaMessageStatusEventSchema>

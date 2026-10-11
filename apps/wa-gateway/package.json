@@ -14,6 +14,7 @@
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.24",
     "@xatxoot/shared": "workspace:*",
+    "bullmq": "^5.81.5",
     "ioredis": "^5.5.0",
     "pino": "^9.6.0",
     "zod": "^4.6.5"
