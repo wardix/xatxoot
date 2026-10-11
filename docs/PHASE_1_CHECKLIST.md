@@ -80,7 +80,7 @@
   - Pembaruan 1:1 Sticky Note (`PATCH /api/v1/tickets/:id/note`).
 - [x] **Task 1.20 (GREEN)**: Implementasi service Conversation, Ticket, dan Sticky Note.
 - [x] **Task 1.21 (RED)**: Tulis test `messages.test.ts` (pengiriman balasan agent via WhatsApp Cloud & antrean Baileys).
-- [ ] **Task 1.22 (GREEN)**: Implementasi pengiriman pesan outbound.
+- [x] **Task 1.22 (GREEN)**: Implementasi pengiriman pesan outbound.
 - [ ] **Task 1.23**: Implementasi SSE stream endpoint `GET /api/v1/realtime/stream`.
 
 ---

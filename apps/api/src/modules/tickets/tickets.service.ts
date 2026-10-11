@@ -298,6 +298,36 @@ export class TicketService {
 
     return updated
   }
+
+  async recordFirstReply(id: string): Promise<Ticket | null> {
+    const existing = await this.getTicketById(id)
+    if (!existing || existing.firstReplyCreatedAt) {
+      return existing
+    }
+
+    const now = new Date().toISOString()
+    const updated: Ticket = {
+      ...existing,
+      firstReplyCreatedAt: now,
+      updatedAt: now,
+    }
+
+    memoryStore.tickets.set(id, updated)
+
+    try {
+      await sql`
+        UPDATE tickets
+        SET
+          first_reply_created_at = ${now},
+          updated_at = ${now}
+        WHERE id = ${id}
+      `
+    } catch {
+      // Memory fallback
+    }
+
+    return updated
+  }
 }
 
 export const ticketService = new TicketService()

@@ -7,6 +7,7 @@ import type {
   TicketStatus,
 } from '@xatxoot/shared'
 import { sql } from '../../db'
+import { messageStore, resetMessageStore, saveMessageToStore } from '../messages/message-store'
 import { resetTicketStore, ticketService } from '../tickets/tickets.service'
 
 export type { Contact, ContactInbox, Conversation, Message, Ticket, TicketStatus }
@@ -57,6 +58,7 @@ export function resetConversationStore(): void {
   memoryStore.contactInboxes.clear()
   memoryStore.conversations.clear()
   memoryStore.messages.clear()
+  resetMessageStore()
   resetTicketStore()
 }
 
@@ -348,6 +350,7 @@ export class ConversationService {
     const convMessages = memoryStore.messages.get(conversation.id) || []
     convMessages.push(message)
     memoryStore.messages.set(conversation.id, convMessages)
+    saveMessageToStore(message)
 
     try {
       await sql`
@@ -415,7 +418,12 @@ export class ConversationService {
       ? await ticketService.getTicketById(conversation.activeTicketId)
       : null
 
-    const messages = memoryStore.messages.get(conversation.id) || []
+    const storeIds = messageStore.conversationIndex.get(conversation.id) || []
+    const storeMessages = storeIds
+      .map((id) => messageStore.messages.get(id))
+      .filter((m): m is Message => m !== undefined)
+    const messages =
+      storeMessages.length > 0 ? storeMessages : memoryStore.messages.get(conversation.id) || []
 
     return {
       conversation,
