@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react'
 import { Avatar, Badge, Button, Input } from '../astryx'
+import { ChatTimeline, type TimelineMessage } from '../chat'
 import type {
   ChatFilter,
   ConversationItem,
@@ -436,20 +437,24 @@ export function ChatListPanel({
 export interface ConversationThreadProps {
   conversation: ConversationItem | null
   isDrawerOpen: boolean
+  messages?: TimelineMessage[]
   onToggleDrawer: () => void
   onSendMessage: (message: string) => void
   onAssignTicket: () => void
   onResolveTicket: () => void
-  children?: React.ReactNode
+  onRetryMessage?: (message: TimelineMessage) => void
+  children?: ReactNode
 }
 
 export function ConversationThread({
   conversation,
   isDrawerOpen,
+  messages,
   onToggleDrawer,
   onSendMessage,
   onAssignTicket,
   onResolveTicket,
+  onRetryMessage,
   children,
 }: ConversationThreadProps) {
   const [inputText, setInputText] = useState('')
@@ -552,14 +557,18 @@ export function ConversationThread({
 
       {/* Canvas Obrolan (Doodle Wallpaper Background) */}
       <div data-testid="doodle-canvas" className="flex-1 overflow-y-auto p-4 wa-doodle-pattern">
-        {children || (
-          <div className="h-full flex flex-col items-center justify-center text-center">
-            <div className="bg-[#ffffff]/90 backdrop-blur-xs px-4 py-2 rounded-lg shadow-xs text-xs text-[#54656f] border border-[#e9edef] max-w-sm">
-              <span className="font-semibold text-emerald-800">Tiket Aktif: </span>
-              {conversation.ticket?.ticketNumber || 'T-Baru'} &bull; Mulai percakapan di bawah ini.
+        {children ||
+          (messages && messages.length > 0 ? (
+            <ChatTimeline messages={messages} onRetryMessage={onRetryMessage} />
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center">
+              <div className="bg-[#ffffff]/90 backdrop-blur-xs px-4 py-2 rounded-lg shadow-xs text-xs text-[#54656f] border border-[#e9edef] max-w-sm">
+                <span className="font-semibold text-emerald-800">Tiket Aktif: </span>
+                {conversation.ticket?.ticketNumber || 'T-Baru'} &bull; Mulai percakapan di bawah
+                ini.
+              </div>
             </div>
-          </div>
-        )}
+          ))}
       </div>
 
       {/* Bottom Input Bar */}
@@ -761,7 +770,9 @@ export interface WhatsAppLayoutProps {
   onAssignTicket?: () => void
   onResolveTicket?: () => void
   onSaveInternalNote?: (note: string) => void
-  children?: React.ReactNode
+  messages?: TimelineMessage[]
+  onRetryMessage?: (message: TimelineMessage) => void
+  children?: ReactNode
 }
 
 export function WhatsAppLayout({
@@ -774,6 +785,7 @@ export function WhatsAppLayout({
   activeFilter = 'all',
   searchQuery = '',
   internalNote = '',
+  messages,
   onTabChange = () => {},
   onChannelFilterChange = () => {},
   onPresenceChange = () => {},
@@ -787,6 +799,7 @@ export function WhatsAppLayout({
   onAssignTicket = () => {},
   onResolveTicket = () => {},
   onSaveInternalNote = () => {},
+  onRetryMessage,
   children,
 }: WhatsAppLayoutProps) {
   const selectedConversation = conversations.find((c) => c.id === selectedConversationId) || null
@@ -819,10 +832,12 @@ export function WhatsAppLayout({
       <ConversationThread
         conversation={selectedConversation}
         isDrawerOpen={isDrawerOpen}
+        messages={messages}
         onToggleDrawer={onToggleDrawer}
         onSendMessage={onSendMessage}
         onAssignTicket={onAssignTicket}
         onResolveTicket={onResolveTicket}
+        onRetryMessage={onRetryMessage}
       >
         {children}
       </ConversationThread>
