@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from 'react'
 import { Avatar, Badge, Button, Input } from '../astryx'
 import { ChatTimeline, type TimelineMessage } from '../chat'
+import { type ContactDrawerData, ContactDrawer as CrmContactDrawer } from '../drawer'
 import type {
   ChatFilter,
   ConversationItem,
@@ -618,129 +619,74 @@ export interface ContactDrawerProps {
   isOpen: boolean
   conversation: ConversationItem | null
   internalNote?: string
+  contactData?: ContactDrawerData | null
   onClose: () => void
   onSaveInternalNote?: (note: string) => void
+  onSelectTicket?: (ticketId: string) => void
 }
 
 export function ContactDrawer({
   isOpen,
   conversation,
   internalNote = '',
+  contactData,
   onClose,
   onSaveInternalNote,
+  onSelectTicket,
 }: ContactDrawerProps) {
-  const [noteContent, setNoteContent] = useState(internalNote)
-
-  if (!isOpen || !conversation) {
+  if (!isOpen || (!conversation && !contactData)) {
     return null
   }
 
+  const data: ContactDrawerData =
+    contactData ||
+    (conversation
+      ? {
+          contactId: conversation.id,
+          contactName: conversation.contactName,
+          contactPhone: conversation.contactPhone,
+          avatarUrl: conversation.contactAvatarUrl,
+          channel: conversation.channel,
+          tags: ['VIP', 'Pelanggan Aktif'],
+          customAttributes: {
+            Channel: conversation.channel,
+            Kehadiran: conversation.presence || 'online',
+          },
+          activeTicket: conversation.ticket
+            ? {
+                id: conversation.ticket.id,
+                ticketNumber: conversation.ticket.ticketNumber,
+                status: conversation.ticket.status,
+                priority: conversation.ticket.priority || 'high',
+                internalNote: internalNote,
+              }
+            : undefined,
+          ticketHistory: conversation.ticket
+            ? [
+                {
+                  id: conversation.ticket.id,
+                  ticketNumber: conversation.ticket.ticketNumber,
+                  status: conversation.ticket.status,
+                  priority: conversation.ticket.priority || 'high',
+                  createdAt: 'Hari ini',
+                },
+              ]
+            : [],
+        }
+      : {
+          contactId: 'unknown',
+          contactName: 'Kontak',
+          channel: 'whatsapp',
+        })
+
   return (
-    <aside
-      data-testid="contact-crm-drawer"
-      className="w-[360px] md:w-[380px] h-full bg-white border-l border-[#e9edef] flex flex-col shrink-0 select-none overflow-hidden z-20 shadow-lg"
-    >
-      {/* Header Drawer */}
-      <div className="h-16 bg-[#f0f2f5] px-4 flex items-center justify-between border-b border-[#e9edef] shrink-0">
-        <h3 className="font-semibold text-base text-[#111b21]">Info Kontak</h3>
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-1.5 text-slate-500 hover:text-slate-800 rounded-full hover:bg-slate-200/60"
-          title="Tutup Panel"
-        >
-          ✕
-        </button>
-      </div>
-
-      {/* Drawer Body Scroll */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-5">
-        {/* Contact Profile Summary */}
-        <div className="flex flex-col items-center text-center pb-4 border-b border-[#f0f2f5]">
-          <Avatar
-            name={conversation.contactName}
-            src={conversation.contactAvatarUrl}
-            channel={conversation.channel}
-            size="xl"
-            className="mb-3"
-          />
-          <h4 className="font-bold text-lg text-[#111b21]">{conversation.contactName}</h4>
-          {conversation.contactPhone && (
-            <p className="text-sm text-[#667781]">{conversation.contactPhone}</p>
-          )}
-          <span className="text-[11px] font-semibold uppercase px-2 py-0.5 mt-2 rounded bg-slate-100 text-slate-600">
-            Channel: {conversation.channel}
-          </span>
-        </div>
-
-        {/* 1:1 Sticky Internal Note Card (#fef3c7) */}
-        <div
-          data-testid="sticky-internal-note-card"
-          className="bg-[#fef3c7] border border-[#fde68a] rounded-xl p-3.5 flex flex-col gap-2 shadow-xs"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-              <span>📌</span>
-              <span>1:1 Sticky Internal Note</span>
-            </span>
-            <span className="text-[10px] text-amber-700 font-medium">Internal Case</span>
-          </div>
-          <textarea
-            rows={3}
-            value={noteContent}
-            onChange={(e) => setNoteContent(e.target.value)}
-            placeholder="Tambahkan catatan kasus internal untuk tiket ini..."
-            className="w-full text-xs text-amber-950 bg-amber-50/60 rounded-lg p-2 border border-amber-200 focus:outline-none focus:ring-1 focus:ring-amber-500 resize-none"
-          />
-          <div className="flex justify-end">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                if (onSaveInternalNote) onSaveInternalNote(noteContent)
-              }}
-              className="text-xs bg-amber-200/80 hover:bg-amber-300 text-amber-900 border-amber-300"
-            >
-              Simpan Catatan
-            </Button>
-          </div>
-        </div>
-
-        {/* Ticket Details & History */}
-        <div
-          data-testid="drawer-ticket-info"
-          className="border border-[#e9edef] rounded-xl p-3.5 flex flex-col gap-2 bg-[#f9fafb]"
-        >
-          <h5 className="font-semibold text-xs text-slate-700 uppercase tracking-wider">
-            Informasi Tiket
-          </h5>
-          {conversation.ticket ? (
-            <div className="flex flex-col gap-1.5 text-xs">
-              <div className="flex justify-between py-1 border-b border-slate-200/60">
-                <span className="text-slate-500">Nomor Tiket:</span>
-                <span className="font-bold text-emerald-800">
-                  {conversation.ticket.ticketNumber}
-                </span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-200/60">
-                <span className="text-slate-500">Status:</span>
-                <span className="font-medium capitalize text-slate-800">
-                  {conversation.ticket.status}
-                </span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-slate-500">Prioritas:</span>
-                <span className="font-semibold uppercase text-rose-700">
-                  {conversation.ticket.priority || 'medium'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">Belum ada tiket aktif.</p>
-          )}
-        </div>
-      </div>
-    </aside>
+    <CrmContactDrawer
+      isOpen={isOpen}
+      data={data}
+      onClose={onClose}
+      onSaveNote={onSaveInternalNote}
+      onSelectTicket={onSelectTicket}
+    />
   )
 }
 
