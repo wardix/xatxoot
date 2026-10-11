@@ -61,7 +61,7 @@
 ---
 
 ### Bagian 4: WhatsApp Unofficial Gateway (`apps/wa-gateway`)
-- [ ] **Task 1.11**: Setup koneksi Baileys Multi-Device di runtime Node.js LTS v20.
+- [x] **Task 1.11**: Setup koneksi Baileys Multi-Device di runtime Node.js LTS v20.
 - [ ] **Task 1.12**: Penanganan event pairing QR code $\rightarrow$ publish ke Redis `wa:session:qr`.
 - [ ] **Task 1.13**: Penanganan event pesan masuk $\rightarrow$ publish ke Redis `wa:inbound:message`.
 - [ ] **Task 1.14**: Setup BullMQ worker untuk antrean `wa-outbound` (eksekusi pengiriman pesan outbound melalui socket Baileys).
