@@ -49,7 +49,7 @@
 ### Bagian 2: Shared Types & Validasi Zod (`packages/shared`)
 - [x] **Task 1.5**: Tipe & skema validasi Zod untuk Inbox & Channel configuration.
 - [x] **Task 1.6**: Tipe & skema validasi Zod untuk Contact & ContactInbox.
-- [ ] **Task 1.7**: Tipe & skema validasi Zod untuk Message payload & Ticket lifecycle transitions.
+- [x] **Task 1.7**: Tipe & skema validasi Zod untuk Message payload & Ticket lifecycle transitions.
 
 ---
 

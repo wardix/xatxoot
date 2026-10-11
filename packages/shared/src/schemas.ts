@@ -304,3 +304,151 @@ export const ContactInboxSchema = z.object({
   updatedAt: z.string().or(z.date()),
 })
 export type ContactInbox = z.infer<typeof ContactInboxSchema>
+
+// ==========================================
+// Phase 1: Ticket Lifecycle & Transitions
+// ==========================================
+
+export const TicketStatusSchema = z.enum(['open', 'pending', 'snoozed', 'resolved'])
+export type TicketStatus = z.infer<typeof TicketStatusSchema>
+
+export const TicketPrioritySchema = z.enum(['low', 'medium', 'high', 'urgent'])
+export type TicketPriority = z.infer<typeof TicketPrioritySchema>
+
+export function isValidTicketTransition(from: TicketStatus, to: TicketStatus): boolean {
+  if (from === to) return false
+  const allowedTransitions: Record<TicketStatus, TicketStatus[]> = {
+    open: ['pending', 'snoozed', 'resolved'],
+    pending: ['open', 'resolved'],
+    snoozed: ['open', 'resolved'],
+    resolved: ['open'],
+  }
+  return allowedTransitions[from]?.includes(to) ?? false
+}
+
+export const CreateTicketInputSchema = z.object({
+  conversationId: z.string().uuid('Conversation ID harus berupa UUID valid'),
+  status: TicketStatusSchema.default('open'),
+  priority: TicketPrioritySchema.default('medium'),
+  assigneeId: z.string().uuid().nullable().optional(),
+  teamId: z.string().uuid().nullable().optional(),
+  internalNote: z.string().nullable().optional(),
+  snoozedUntil: z.string().or(z.date()).nullable().optional(),
+  deadlineAt: z.string().or(z.date()).nullable().optional(),
+  customAttributes: z.record(z.any()).default({}),
+})
+export type CreateTicketInput = z.infer<typeof CreateTicketInputSchema>
+
+export const UpdateTicketStatusInputSchema = z.object({
+  status: TicketStatusSchema,
+  snoozedUntil: z.string().or(z.date()).nullable().optional(),
+})
+export type UpdateTicketStatusInput = z.infer<typeof UpdateTicketStatusInputSchema>
+
+export const UpdateTicketInternalNoteInputSchema = z.object({
+  internalNote: z.string(),
+})
+export type UpdateTicketInternalNoteInput = z.infer<typeof UpdateTicketInternalNoteInputSchema>
+
+export const TicketSchema = z.object({
+  id: z.string().uuid(),
+  displayId: z.number().int().or(z.string()),
+  conversationId: z.string().uuid(),
+  assigneeId: z.string().uuid().nullable().optional(),
+  teamId: z.string().uuid().nullable().optional(),
+  status: TicketStatusSchema,
+  priority: TicketPrioritySchema,
+  snoozedUntil: z.string().or(z.date()).nullable().optional(),
+  waitingSince: z.string().or(z.date()).nullable().optional(),
+  deadlineAt: z.string().or(z.date()).nullable().optional(),
+  firstReplyCreatedAt: z.string().or(z.date()).nullable().optional(),
+  openedAt: z.string().or(z.date()),
+  resolvedAt: z.string().or(z.date()).nullable().optional(),
+  internalNote: z.string().nullable().optional(),
+  internalNoteUpdatedBy: z.string().uuid().nullable().optional(),
+  internalNoteUpdatedAt: z.string().or(z.date()).nullable().optional(),
+  customAttributes: z.record(z.any()),
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+})
+export type Ticket = z.infer<typeof TicketSchema>
+
+// ==========================================
+// Phase 1: Message Payload & Communications
+// ==========================================
+
+export const MessageSenderTypeSchema = z.enum(['user', 'contact', 'bot', 'system'])
+export type MessageSenderType = z.infer<typeof MessageSenderTypeSchema>
+
+export const MessageTypeSchema = z.enum(['incoming', 'outgoing', 'activity', 'template'])
+export type MessageType = z.infer<typeof MessageTypeSchema>
+
+export const MessageContentTypeSchema = z.enum([
+  'text',
+  'image',
+  'video',
+  'audio',
+  'file',
+  'location',
+  'interactive',
+])
+export type MessageContentType = z.infer<typeof MessageContentTypeSchema>
+
+export const MessageStatusSchema = z.enum(['sent', 'delivered', 'read', 'failed'])
+export type MessageStatus = z.infer<typeof MessageStatusSchema>
+
+export const AttachmentInputSchema = z.object({
+  fileType: z.string().min(1, 'File type wajib diisi'),
+  fileUrl: z.string().url('File URL harus berupa URL valid'),
+  thumbUrl: z.string().url().nullable().optional(),
+  fileSize: z.number().nonnegative().default(0),
+  fileName: z.string().nullable().optional(),
+  metadata: z.record(z.any()).default({}),
+})
+export type AttachmentInput = z.infer<typeof AttachmentInputSchema>
+
+export const AttachmentSchema = z.object({
+  id: z.string().uuid(),
+  messageId: z.string().uuid(),
+  fileType: z.string(),
+  fileUrl: z.string(),
+  thumbUrl: z.string().nullable().optional(),
+  fileSize: z.number().nonnegative(),
+  fileName: z.string().nullable().optional(),
+  metadata: z.record(z.any()),
+  createdAt: z.string().or(z.date()),
+})
+export type Attachment = z.infer<typeof AttachmentSchema>
+
+export const CreateMessageInputSchema = z.object({
+  conversationId: z.string().uuid('Conversation ID harus berupa UUID valid'),
+  ticketId: z.string().uuid().nullable().optional(),
+  senderType: MessageSenderTypeSchema,
+  senderId: z.string().uuid().nullable().optional(),
+  messageType: MessageTypeSchema.default('incoming'),
+  content: z.string().nullable().optional(),
+  contentType: MessageContentTypeSchema.default('text'),
+  status: MessageStatusSchema.default('sent'),
+  externalSourceId: z.string().nullable().optional(),
+  contentAttributes: z.record(z.any()).default({}),
+  attachments: z.array(AttachmentInputSchema).default([]),
+})
+export type CreateMessageInput = z.infer<typeof CreateMessageInputSchema>
+
+export const MessageSchema = z.object({
+  id: z.string().uuid(),
+  conversationId: z.string().uuid(),
+  ticketId: z.string().uuid().nullable().optional(),
+  senderType: MessageSenderTypeSchema,
+  senderId: z.string().uuid().nullable().optional(),
+  messageType: MessageTypeSchema,
+  content: z.string().nullable().optional(),
+  contentType: MessageContentTypeSchema,
+  status: MessageStatusSchema,
+  externalSourceId: z.string().nullable().optional(),
+  contentAttributes: z.record(z.any()),
+  attachments: z.array(AttachmentSchema).optional(),
+  createdAt: z.string().or(z.date()),
+  updatedAt: z.string().or(z.date()),
+})
+export type Message = z.infer<typeof MessageSchema>
