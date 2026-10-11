@@ -86,7 +86,7 @@
 ---
 
 ### Bagian 6: Antarmuka Web Dashboard (`apps/web`)
-- [ ] **Task 1.24**: Implementasi layout 3.5 kolom khas WhatsApp Web menggunakan token tema & komponen Astryx.
+- [x] **Task 1.24**: Implementasi layout 3.5 kolom khas WhatsApp Web menggunakan token tema & komponen Astryx.
 - [ ] **Task 1.25**: Komponen Chat Timeline: bubble bertail, penanda pesan masuk vs keluar, double check delivery status.
 - [ ] **Task 1.26**: Panel Samping Kanan (Drawer): profil kontak, riwayat tiket, dan kartu edit *1:1 Sticky Internal Note*.
 - [ ] **Task 1.27**: Dialog pairing WhatsApp Baileys via live QR code generator.

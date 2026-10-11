@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .wa-doodle-pattern {
+    background-color: #efeae2;
+    background-image: radial-gradient(#d3cbbe 0.75px, transparent 0.75px),
+      radial-gradient(#d3cbbe 0.75px, #efeae2 0.75px);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+  }
+}
