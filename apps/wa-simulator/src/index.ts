@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { graphMessagesRoutes } from './modules/messages/graph-messages.routes'
 import { verifyWebhookChallenge } from './modules/webhook/webhook-verifier'
 
 const app = new Hono()
@@ -21,5 +22,7 @@ app.get('/webhook', (c) => {
 
   return c.text(result.challenge ?? '')
 })
+
+app.route('/', graphMessagesRoutes)
 
 export default app
