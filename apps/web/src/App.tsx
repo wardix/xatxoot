@@ -9,6 +9,7 @@ import type {
   LayoutUser,
   PresenceStatus,
 } from './components/layout/types'
+import { BaileysPairingDialog, type BaileysPairingState } from './components/pairing'
 
 const INITIAL_USER: LayoutUser = {
   id: 'usr_default_agent',
@@ -164,6 +165,11 @@ export function App() {
   const [internalNote, setInternalNote] = useState(
     'Pelanggan VIP. Sering melakukan pemesanan rutin setiap awal bulan.',
   )
+  const [isPairingDialogOpen, setIsPairingDialogOpen] = useState(false)
+  const [pairingState, setPairingState] = useState<BaileysPairingState>({
+    status: 'qr_ready',
+    qrData: '2@fK7x8Y1...xatxoot-baileys-live-session-qr',
+  })
 
   // Filter conversations
   const filteredConversations = conversations.filter((c) => {
@@ -276,31 +282,59 @@ export function App() {
   }
 
   return (
-    <WhatsAppLayout
-      currentUser={user}
-      conversations={filteredConversations}
-      selectedConversationId={selectedConversationId}
-      isDrawerOpen={isDrawerOpen}
-      activeTab={activeTab}
-      activeChannelFilter={activeChannelFilter}
-      activeFilter={activeFilter}
-      searchQuery={searchQuery}
-      internalNote={internalNote}
-      messages={currentMessages}
-      onTabChange={setActiveTab}
-      onChannelFilterChange={setActiveChannelFilter}
-      onPresenceChange={(status: PresenceStatus) => setUser((u) => ({ ...u, status }))}
-      onSelectConversation={handleSelectConversation}
-      onFilterChange={setActiveFilter}
-      onSearchChange={setSearchQuery}
-      onNewChat={() => setSelectedConversationId(null)}
-      onToggleDrawer={() => setIsDrawerOpen(!isDrawerOpen)}
-      onCloseDrawer={() => setIsDrawerOpen(false)}
-      onSendMessage={handleSendMessage}
-      onAssignTicket={handleAssignTicket}
-      onResolveTicket={handleResolveTicket}
-      onSaveInternalNote={setInternalNote}
-    />
+    <>
+      <WhatsAppLayout
+        currentUser={user}
+        conversations={filteredConversations}
+        selectedConversationId={selectedConversationId}
+        isDrawerOpen={isDrawerOpen}
+        activeTab={activeTab}
+        activeChannelFilter={activeChannelFilter}
+        activeFilter={activeFilter}
+        searchQuery={searchQuery}
+        internalNote={internalNote}
+        messages={currentMessages}
+        onTabChange={setActiveTab}
+        onChannelFilterChange={setActiveChannelFilter}
+        onPresenceChange={(status: PresenceStatus) => setUser((u) => ({ ...u, status }))}
+        onSelectConversation={handleSelectConversation}
+        onFilterChange={setActiveFilter}
+        onSearchChange={setSearchQuery}
+        onNewChat={() => setSelectedConversationId(null)}
+        onToggleDrawer={() => setIsDrawerOpen(!isDrawerOpen)}
+        onCloseDrawer={() => setIsDrawerOpen(false)}
+        onSendMessage={handleSendMessage}
+        onAssignTicket={handleAssignTicket}
+        onResolveTicket={handleResolveTicket}
+        onSaveInternalNote={setInternalNote}
+        onOpenSettings={() => setIsPairingDialogOpen(true)}
+      />
+
+      <BaileysPairingDialog
+        isOpen={isPairingDialogOpen}
+        inboxName="WhatsApp Layanan CS"
+        state={pairingState}
+        onClose={() => setIsPairingDialogOpen(false)}
+        onRefreshQr={() => {
+          setPairingState((prev) => ({
+            ...prev,
+            status: 'qr_ready',
+            qrData: `2@fK7x8Y1...refreshed-${Date.now()}`,
+          }))
+        }}
+        onRetry={() => {
+          setPairingState({
+            status: 'connecting',
+          })
+          setTimeout(() => {
+            setPairingState({
+              status: 'qr_ready',
+              qrData: `2@fK7x8Y1...reconnected-${Date.now()}`,
+            })
+          }, 500)
+        }}
+      />
+    </>
   )
 }
 

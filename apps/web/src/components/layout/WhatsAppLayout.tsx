@@ -718,6 +718,7 @@ export interface WhatsAppLayoutProps {
   onSaveInternalNote?: (note: string) => void
   messages?: TimelineMessage[]
   onRetryMessage?: (message: TimelineMessage) => void
+  onOpenSettings?: () => void
   children?: ReactNode
 }
 
@@ -746,6 +747,7 @@ export function WhatsAppLayout({
   onResolveTicket = () => {},
   onSaveInternalNote = () => {},
   onRetryMessage,
+  onOpenSettings,
   children,
 }: WhatsAppLayoutProps) {
   const selectedConversation = conversations.find((c) => c.id === selectedConversationId) || null
@@ -760,6 +762,7 @@ export function WhatsAppLayout({
         onTabChange={onTabChange}
         onChannelFilterChange={onChannelFilterChange}
         onPresenceChange={onPresenceChange}
+        onOpenSettings={onOpenSettings}
       />
 
       {/* Kolom 2: ChatListPanel */}
