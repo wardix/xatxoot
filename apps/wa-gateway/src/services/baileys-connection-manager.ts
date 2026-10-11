@@ -1,10 +1,14 @@
 import type { ConnectionEventHandlers, SocketConfigOptions } from '../types/connection'
 import { BaileysSession } from './baileys-session'
+import type { RedisEventPublisher } from './redis-publisher'
 
 export interface CreateSessionParams {
   sessionId: string
+  channelId?: string
+  inboxId?: string
   options?: Partial<SocketConfigOptions>
   handlers?: ConnectionEventHandlers
+  redisPublisher?: RedisEventPublisher
 }
 
 export class BaileysConnectionManager {
@@ -18,7 +22,10 @@ export class BaileysConnectionManager {
 
     const session = new BaileysSession({
       sessionId: params.sessionId,
+      channelId: params.channelId,
+      inboxId: params.inboxId,
       handlers: params.handlers,
+      redisPublisher: params.redisPublisher,
     })
 
     this.sessions.set(params.sessionId, session)
