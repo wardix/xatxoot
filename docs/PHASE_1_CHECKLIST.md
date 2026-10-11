@@ -72,7 +72,7 @@
 - [x] **Task 1.15 (RED)**: Tulis test `inboxes.test.ts` (CRUD Inbox, pairing channel WhatsApp Cloud & Baileys).
 - [x] **Task 1.16 (GREEN)**: Implementasi controller & service `inboxes`.
 - [x] **Task 1.17 (RED)**: Tulis test `whatsapp-cloud.webhook.test.ts` (verifikasi signature `X-Hub-Signature-256`, penerimaan pesan teks & media).
-- [ ] **Task 1.18 (GREEN)**: Implementasi webhook receiver Meta Cloud API.
+- [x] **Task 1.18 (GREEN)**: Implementasi webhook receiver Meta Cloud API.
 - [ ] **Task 1.19 (RED)**: Tulis test `conversations.test.ts` & `tickets.test.ts`:
   - Pesan masuk otomatis mencari/membuat Contact & Conversation.
   - Pembuatan Ticket baru otomatis jika belum ada tiket open.
