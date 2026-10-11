@@ -1,6 +1,8 @@
 import { DisconnectReason } from '@whiskeysockets/baileys'
 import type { ConnectionEventHandlers, GatewayConnectionStatus } from '../types/connection'
+import type { WaInboundMessageEvent } from '../types/events'
 import { mapDisconnectReasonToStatus } from './disconnect-handler'
+import { extractInboundMessage } from './message-parser'
 import type { RedisEventPublisher } from './redis-publisher'
 
 export interface SessionInitParams {
@@ -43,6 +45,28 @@ export class BaileysSession {
         timestamp: new Date().toISOString(),
       })
     }
+  }
+
+  async handleInboundMessage(wam: unknown): Promise<WaInboundMessageEvent | null> {
+    if (!this.channelId || !this.inboxId) {
+      return null
+    }
+
+    const event = extractInboundMessage(wam, {
+      channelId: this.channelId,
+      inboxId: this.inboxId,
+    })
+
+    if (!event) {
+      return null
+    }
+
+    if (this.redisPublisher) {
+      await this.redisPublisher.publishInboundMessage(event)
+    }
+
+    this.handlers?.onMessageReceived?.(event)
+    return event
   }
 
   emitConnected(details?: Record<string, unknown>): void {

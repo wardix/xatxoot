@@ -17,8 +17,14 @@ export type {
   GatewayConnectionStatus,
   SocketConfigOptions,
 } from './types/connection'
+export { extractInboundMessage } from './services/message-parser'
 export {
+  REDIS_CHANNEL_WA_INBOUND_MESSAGE,
   REDIS_CHANNEL_WA_SESSION_QR,
+  type WaInboundMessageEvent,
+  WaInboundMessageEventSchema,
+  type WaInboundMessageType,
+  WaInboundMessageTypeSchema,
   type WaSessionQrEvent,
   WaSessionQrEventSchema,
 } from './types/events'
