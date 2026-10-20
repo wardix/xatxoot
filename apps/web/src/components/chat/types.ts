@@ -29,4 +29,10 @@ export interface TimelineMessage {
   dateGroup?: string
   status?: DeliveryStatus
   errorMessage?: string
+  isEdited?: boolean
+  editedAt?: string
+  editHistory?: Array<{
+    previousContent: string
+    editedAt: string
+  }>
 }

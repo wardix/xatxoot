@@ -267,6 +267,19 @@ export function ChatBubble({ message, onRetry }: ChatBubbleProps) {
 
         {/* Bottom Metadata: Timestamp + Outgoing Delivery Tick */}
         <div className="flex items-center justify-end gap-1 mt-0.5 ml-3 float-right select-none">
+          {message.isEdited && (
+            <span
+              data-testid="message-edited-badge"
+              className="text-[10px] italic text-wa-text-secondary cursor-pointer hover:underline"
+              title={
+                message.editHistory && message.editHistory.length > 0
+                  ? `Diedit (${message.editHistory.length}x)`
+                  : 'Diedit'
+              }
+            >
+              (diedit)
+            </span>
+          )}
           <span className="text-[11px] text-wa-text-secondary leading-none">
             {message.timestamp}
           </span>
@@ -281,6 +294,35 @@ export function ChatBubble({ message, onRetry }: ChatBubbleProps) {
             </button>
           )}
         </div>
+
+        {/* Audit trail popover / view for edited message */}
+        {message.isEdited && message.editHistory && message.editHistory.length > 0 && (
+          <div
+            data-testid="edit-history-popover"
+            className="clear-both mt-1.5 pt-1.5 border-t border-black/5 text-[11px] text-wa-text-secondary flex flex-col gap-0.5 select-text"
+          >
+            <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">
+              Riwayat Edit:
+            </span>
+            {message.editHistory.map((item, idx) => (
+              <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: immutable history order
+                key={idx}
+                className="flex flex-col border-b last:border-0 border-black/5 pb-0.5"
+              >
+                <span className="text-[9px] text-slate-400">
+                  {item.editedAt
+                    ? new Date(item.editedAt).toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : ''}
+                </span>
+                <span className="line-through opacity-75">{item.previousContent}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

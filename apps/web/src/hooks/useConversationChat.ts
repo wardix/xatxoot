@@ -11,6 +11,7 @@ import { api } from '../services/apiClient'
 import type { MessageCreatedEvent, TicketUpdatedEvent } from './types'
 import {
   applyRealtimeMessage,
+  applyRealtimeMessageEdit,
   applyRealtimeMessageStatus,
   applyRealtimeTicket,
   useRealtimeStream,
@@ -271,6 +272,9 @@ export function useConversationChat({ user, initialConversationId }: UseConversa
                 : 'Baru saja',
               dateGroup: formatDateGroup(m.createdAt),
               status: m.status || (isCustomer ? 'delivered' : 'read'),
+              isEdited: Boolean(m.contentAttributes?.isEdited || m.isEdited),
+              editedAt: m.contentAttributes?.editedAt || m.editedAt,
+              editHistory: m.contentAttributes?.editHistory || m.editHistory || [],
             }
           })
           setMessagesMap((prev) => {
@@ -351,6 +355,20 @@ export function useConversationChat({ user, initialConversationId }: UseConversa
     },
     onMessageStatusUpdated: (event) => {
       setMessagesMap((prev) => applyRealtimeMessageStatus(prev, event))
+    },
+    onMessageEdited: (event) => {
+      setMessagesMap((prev) => applyRealtimeMessageEdit(prev, event))
+      setConversations((prev) =>
+        prev.map((c) => {
+          if (c.id === event.conversationId) {
+            return {
+              ...c,
+              lastMessage: event.content,
+            }
+          }
+          return c
+        }),
+      )
     },
     onTicketUpdated: (rawEvt) => {
       // biome-ignore lint/suspicious/noExplicitAny: event normalization

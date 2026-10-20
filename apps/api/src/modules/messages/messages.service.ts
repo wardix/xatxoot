@@ -11,27 +11,11 @@ import {
   resetMessageStore,
   saveMessageToStore,
 } from './message-store'
+import type { AttachmentInputDto, SendMessageInput } from './types'
 
 export type { DispatchedCloudRequest, QueuedBaileysJob }
+export type { AttachmentInputDto, SendMessageInput }
 export { resetMessageStore }
-
-export interface AttachmentInputDto {
-  fileType: string
-  fileUrl: string
-  fileName?: string | null
-  fileSize?: number
-  metadata?: Record<string, unknown>
-}
-
-export interface SendMessageInput {
-  conversationId: string
-  content?: string | null
-  contentType?: 'text' | 'image' | 'video' | 'audio' | 'document' | 'file' | string
-  attachments?: AttachmentInputDto[]
-  senderType?: 'user' | 'contact' | 'bot' | 'system'
-  senderId?: string | null
-  simulateError?: string | null
-}
 
 export class MessageService {
   getDispatchedCloudRequests(): DispatchedCloudRequest[] {
@@ -211,6 +195,57 @@ export class MessageService {
     })
 
     return updated
+  }
+
+  async editMessage(params: {
+    targetExternalId: string
+    newContent: string
+    editedAt?: string
+  }): Promise<{ message: Message } | null> {
+    const target = await this.getMessageByExternalId(params.targetExternalId)
+    if (!target) return null
+
+    const now = params.editedAt || new Date().toISOString()
+    const attrs = (target.contentAttributes as Record<string, unknown>) || {}
+    const editHistory = Array.isArray(attrs.editHistory) ? [...attrs.editHistory] : []
+    editHistory.push({ previousContent: target.content || '', editedAt: now })
+
+    const contentAttributes = { ...attrs, isEdited: true, editedAt: now, editHistory }
+    const updated: Message = {
+      ...target,
+      content: params.newContent,
+      contentAttributes,
+      updatedAt: now,
+    }
+
+    messageStore.messages.set(updated.id, updated)
+    try {
+      await sql`
+        UPDATE messages
+        SET
+          content = ${params.newContent},
+          content_attributes = ${JSON.stringify(contentAttributes)},
+          updated_at = ${now}
+        WHERE id = ${updated.id}
+      `
+    } catch {
+      // Memory fallback
+    }
+
+    realtimeService.broadcast({
+      event: 'message.edited',
+      data: {
+        id: updated.id,
+        conversationId: updated.conversationId,
+        ticketId: updated.ticketId,
+        content: updated.content,
+        editedAt: now,
+        contentAttributes,
+        message: updated,
+      },
+    })
+
+    return { message: updated }
   }
 
   async dispatchWhatsAppCloud(params: {

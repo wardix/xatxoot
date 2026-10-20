@@ -128,6 +128,10 @@ export class BaileysSession {
           content: event.content,
           timestamp: event.timestamp,
           isEcho: Boolean(isEcho || event.isEcho),
+          isEdit: event.isEdit,
+          targetExternalId: event.targetExternalId,
+          newContent: event.newContent,
+          editedAt: event.editedAt,
         }),
       })
       const text = await res.text()

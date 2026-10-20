@@ -23,6 +23,22 @@ export interface MessageStatusUpdatedEvent {
   updatedAt?: string
 }
 
+export interface MessageEditedEvent {
+  id: string
+  conversationId: string
+  content: string
+  editedAt: string
+  contentAttributes?: {
+    isEdited?: boolean
+    editedAt?: string
+    editHistory?: Array<{
+      previousContent: string
+      editedAt: string
+    }>
+    [key: string]: unknown
+  }
+}
+
 export interface TicketUpdatedEvent {
   id: string
   ticketNumber: string
@@ -44,6 +60,7 @@ export interface RealtimeStreamOptions {
   onConnected?: (data: unknown) => void
   onMessageCreated?: (event: MessageCreatedEvent) => void
   onMessageStatusUpdated?: (event: MessageStatusUpdatedEvent) => void
+  onMessageEdited?: (event: MessageEditedEvent) => void
   onTicketUpdated?: (event: TicketUpdatedEvent) => void
   onError?: (error: unknown) => void
   onStatusChange?: (status: RealtimeStatus) => void

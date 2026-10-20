@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type {
   MessageCreatedEvent,
+  MessageEditedEvent,
   MessageStatusUpdatedEvent,
   RealtimeEventHandler,
   RealtimeStatus,
@@ -135,6 +136,12 @@ export class RealtimeStreamClient {
       this.emit('message.status_updated', data)
     }
 
+    const handleMessageEdited = (event: unknown) => {
+      const data = this.parseEventData(event)
+      this.options.onMessageEdited?.(data as MessageEditedEvent)
+      this.emit('message.edited', data)
+    }
+
     const handleTicketUpdated = (event: unknown) => {
       const data = this.parseEventData(event)
       this.options.onTicketUpdated?.(data as TicketUpdatedEvent)
@@ -144,11 +151,13 @@ export class RealtimeStreamClient {
     es.addEventListener('connected', handleConnected as EventListener)
     es.addEventListener('message.created', handleMessageCreated as EventListener)
     es.addEventListener('message.status_updated', handleMessageStatusUpdated as EventListener)
+    es.addEventListener('message.edited', handleMessageEdited as EventListener)
     es.addEventListener('ticket.updated', handleTicketUpdated as EventListener)
 
     this.boundEsListeners.set('connected', handleConnected)
     this.boundEsListeners.set('message.created', handleMessageCreated)
     this.boundEsListeners.set('message.status_updated', handleMessageStatusUpdated)
+    this.boundEsListeners.set('message.edited', handleMessageEdited)
     this.boundEsListeners.set('ticket.updated', handleTicketUpdated)
 
     // Register active custom listeners
@@ -160,7 +169,7 @@ export class RealtimeStreamClient {
   disconnect(): void {
     if (this.eventSource) {
       for (const [type, listener] of this.boundEsListeners.entries()) {
-        this.eventSource.removeEventListener(type, listener as EventListener)
+        this.eventSource.removeEventListener?.(type, listener as EventListener)
       }
       this.boundEsListeners.clear()
       this.eventSource.close()
@@ -218,6 +227,7 @@ export function useRealtimeStream(
     enabled = true,
     onMessageCreated,
     onMessageStatusUpdated,
+    onMessageEdited,
     onTicketUpdated,
     onError,
     onConnected,
@@ -230,6 +240,7 @@ export function useRealtimeStream(
   const callbacksRef = useRef({
     onMessageCreated,
     onMessageStatusUpdated,
+    onMessageEdited,
     onTicketUpdated,
     onError,
     onConnected,
@@ -239,11 +250,19 @@ export function useRealtimeStream(
     callbacksRef.current = {
       onMessageCreated,
       onMessageStatusUpdated,
+      onMessageEdited,
       onTicketUpdated,
       onError,
       onConnected,
     }
-  }, [onMessageCreated, onMessageStatusUpdated, onTicketUpdated, onError, onConnected])
+  }, [
+    onMessageCreated,
+    onMessageStatusUpdated,
+    onMessageEdited,
+    onTicketUpdated,
+    onError,
+    onConnected,
+  ])
 
   const connect = useCallback(() => {
     if (!clientRef.current) {
@@ -265,6 +284,10 @@ export function useRealtimeStream(
         onMessageStatusUpdated: (event) => {
           setLastEvent({ type: 'message.status_updated', data: event })
           callbacksRef.current.onMessageStatusUpdated?.(event)
+        },
+        onMessageEdited: (event) => {
+          setLastEvent({ type: 'message.edited', data: event })
+          callbacksRef.current.onMessageEdited?.(event)
         },
         onTicketUpdated: (event) => {
           setLastEvent({ type: 'ticket.updated', data: event })
@@ -372,6 +395,59 @@ export function applyRealtimeMessageStatus<
     if (m.id === event.id && m.status !== event.status) {
       hasChanged = true
       return { ...m, status: event.status }
+    }
+    return m
+  })
+
+  if (!hasChanged) return messagesMap
+
+  return {
+    ...messagesMap,
+    [event.conversationId]: updatedList,
+  }
+}
+
+export function applyRealtimeMessageEdit<
+  T extends {
+    id: string
+    conversationId: string
+    content?: string | null
+    contentAttributes?: Record<string, unknown>
+    isEdited?: boolean
+    editedAt?: string
+    editHistory?: Array<{ previousContent: string; editedAt: string }>
+  },
+>(messagesMap: Record<string, T[]>, event: MessageEditedEvent): Record<string, T[]> {
+  const currentList = messagesMap[event.conversationId]
+  if (!currentList) return messagesMap
+
+  let hasChanged = false
+  const updatedList = currentList.map((m) => {
+    if (m.id === event.id) {
+      hasChanged = true
+      const existingHistory =
+        event.contentAttributes?.editHistory ||
+        (
+          m.contentAttributes as
+            | { editHistory?: Array<{ previousContent: string; editedAt: string }> }
+            | undefined
+        )?.editHistory ||
+        m.editHistory ||
+        []
+      return {
+        ...m,
+        content: event.content,
+        isEdited: true,
+        editedAt: event.editedAt,
+        contentAttributes: {
+          ...(m.contentAttributes || {}),
+          ...(event.contentAttributes || {}),
+          isEdited: true,
+          editedAt: event.editedAt,
+          editHistory: existingHistory,
+        },
+        editHistory: existingHistory,
+      }
     }
     return m
   })

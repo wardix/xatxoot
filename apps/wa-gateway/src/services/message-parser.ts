@@ -41,6 +41,13 @@ export interface WAMessageContent {
   stickerMessage?: {
     mimetype?: string | null
   } | null
+  protocolMessage?: {
+    key?: WAMessageKey | null
+    type?: number | null
+    // biome-ignore lint/suspicious/noExplicitAny: nested editedMessage
+    editedMessage?: any
+    timestampMs?: number | string | null
+  } | null
 }
 
 export interface MinimalWAMessage {
@@ -120,6 +127,65 @@ export function extractInboundMessage(
       contentObj.viewOnceMessage?.message ||
       contentObj.viewOnceMessageV2?.message ||
       contentObj.documentWithCaptionMessage?.message
+  }
+
+  // Handle Baileys edited message (protocolMessage type 14 / MESSAGE_EDIT)
+  if (
+    contentObj?.protocolMessage &&
+    (contentObj.protocolMessage.type === 14 || Boolean(contentObj.protocolMessage.editedMessage))
+  ) {
+    const protoMsg = contentObj.protocolMessage
+    const targetExternalId = protoMsg.key?.id
+    if (!targetExternalId) {
+      return null
+    }
+
+    let editedContentObj = protoMsg.editedMessage
+    while (
+      editedContentObj?.ephemeralMessage?.message ||
+      editedContentObj?.viewOnceMessage?.message ||
+      editedContentObj?.viewOnceMessageV2?.message ||
+      editedContentObj?.documentWithCaptionMessage?.message
+    ) {
+      editedContentObj =
+        editedContentObj.ephemeralMessage?.message ||
+        editedContentObj.viewOnceMessage?.message ||
+        editedContentObj.viewOnceMessageV2?.message ||
+        editedContentObj.documentWithCaptionMessage?.message
+    }
+
+    let newContent = ''
+    if (typeof editedContentObj?.conversation === 'string') {
+      newContent = editedContentObj.conversation
+    } else if (editedContentObj?.extendedTextMessage?.text) {
+      newContent = editedContentObj.extendedTextMessage.text
+    } else if (editedContentObj?.imageMessage?.caption) {
+      newContent = editedContentObj.imageMessage.caption
+    } else if (editedContentObj?.videoMessage?.caption) {
+      newContent = editedContentObj.videoMessage.caption
+    } else if (editedContentObj?.documentMessage?.caption) {
+      newContent = editedContentObj.documentMessage.caption
+    }
+
+    const timestamp = msg.messageTimestamp
+      ? new Date(Number(msg.messageTimestamp) * 1000).toISOString()
+      : new Date().toISOString()
+
+    return {
+      channelId: context.channelId,
+      inboxId: context.inboxId,
+      senderNumber,
+      senderName: context.isEcho || key.fromMe ? undefined : msg.pushName || undefined,
+      externalMessageId: key.id,
+      targetExternalId,
+      isEdit: true,
+      newContent,
+      editedAt: timestamp,
+      messageType: 'text',
+      content: newContent,
+      timestamp,
+      isEcho: context.isEcho ? true : undefined,
+    }
   }
 
   let messageType: WaInboundMessageType = 'text'

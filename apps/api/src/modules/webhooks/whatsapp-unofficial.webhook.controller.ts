@@ -14,6 +14,10 @@ export interface WhatsAppUnofficialInboundBody {
   mediaUrl?: string
   timestamp?: string
   isEcho?: boolean
+  isEdit?: boolean
+  targetExternalId?: string
+  newContent?: string
+  editedAt?: string
 }
 
 export async function handleWhatsAppUnofficialInbound(c: Context) {
@@ -29,6 +33,40 @@ export async function handleWhatsAppUnofficialInbound(c: Context) {
     if (!body || !body.senderNumber) {
       console.warn('[api-webhook] [DEBUG] Rejected: senderNumber is required')
       return c.json({ error: 'senderNumber is required' }, 400)
+    }
+
+    // Handle edited message
+    if (body.isEdit) {
+      const targetExternalId = body.targetExternalId || body.externalMessageId
+      if (!targetExternalId) {
+        return c.json({ error: 'targetExternalId is required for edited message' }, 400)
+      }
+
+      const result = await conversationService.handleEditedMessage({
+        targetExternalId,
+        newContent: body.newContent || body.content || '',
+        editedAt: body.editedAt || body.timestamp,
+      })
+
+      if (!result) {
+        console.warn(
+          `[api-webhook] [DEBUG] Target message not found for targetExternalId=${targetExternalId}`,
+        )
+        return c.json({ error: 'Target message not found' }, 404)
+      }
+
+      console.log(
+        `[api-webhook] [DEBUG] Inbound edited message updated successfully! messageId=${result.message.id}, conversationId=${result.message.conversationId}`,
+      )
+
+      return c.json({
+        success: true,
+        isEdit: true,
+        messageId: result.message.id,
+        conversationId: result.message.conversationId,
+        ticketId: result.message.ticketId,
+        message: result.message,
+      })
     }
 
     // 0. Idempotency check on externalMessageId

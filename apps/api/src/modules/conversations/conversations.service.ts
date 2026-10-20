@@ -986,6 +986,26 @@ export class ConversationService {
     }
     return Array.from(memoryStore.contacts.values())
   }
+
+  async handleEditedMessage(params: {
+    targetExternalId: string
+    newContent: string
+    editedAt?: string
+  }): Promise<{ message: Message } | null> {
+    const { messageService } = await import('../messages/messages.service')
+    const result = await messageService.editMessage(params)
+    if (!result) return null
+
+    const convMsgs = memoryStore.messages.get(result.message.conversationId)
+    if (convMsgs) {
+      const idx = convMsgs.findIndex((m) => m.id === result.message.id)
+      if (idx !== -1) {
+        convMsgs[idx] = result.message
+      }
+    }
+
+    return result
+  }
 }
 
 export const conversationService = new ConversationService()
