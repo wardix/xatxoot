@@ -351,6 +351,13 @@ export function ChatBubble({ message, onRetry, onReply, onForward }: ChatBubbleP
     message.isMentioningMe ||
       (message.contentAttributes as Record<string, unknown> | undefined)?.isMentioningMe,
   )
+  const effectiveMediaUrl =
+    message.mediaUrl ||
+    ((message.contentAttributes as Record<string, unknown> | undefined)?.mediaUrl as
+      | string
+      | undefined) ||
+    (Array.isArray(message.attachments) && message.attachments[0]?.fileUrl) ||
+    undefined
 
   const tooltipText = isEcho
     ? message.timestamp
@@ -536,11 +543,11 @@ export function ChatBubble({ message, onRetry, onReply, onForward }: ChatBubbleP
             )}
 
             {/* Media Attachments Preview */}
-            {message.contentType === 'image' && message.mediaUrl && (
+            {message.contentType === 'image' && effectiveMediaUrl && (
               <div className="mb-1.5 rounded-lg overflow-hidden bg-slate-100 max-h-64 border border-black/5">
                 <img
                   data-testid="bubble-media-image"
-                  src={message.mediaUrl}
+                  src={effectiveMediaUrl}
                   alt={message.content || 'Lampiran Gambar'}
                   className="w-full h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity"
                 />

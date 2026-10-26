@@ -1064,15 +1064,37 @@ export class ConversationService {
       status: 'sent',
       externalSourceId: payload.externalId ?? null,
       replyTo: echoReplyTo || undefined,
+      mediaUrl: payload.mediaUrl || undefined,
       contentAttributes: {
         echo: true,
         source: 'whatsapp_mobile',
         senderName: 'WhatsApp HP',
+        mediaUrl: payload.mediaUrl || undefined,
         ...(echoReplyTo ? { replyTo: echoReplyTo } : {}),
       },
-      attachments: [],
+      attachments: payload.mediaUrl
+        ? [
+            {
+              id: crypto.randomUUID(),
+              messageId: '',
+              fileType:
+                payload.contentType === 'image'
+                  ? 'image/jpeg'
+                  : payload.contentType === 'document'
+                    ? 'application/pdf'
+                    : 'application/octet-stream',
+              fileUrl: payload.mediaUrl,
+              fileName: payload.mediaUrl.split('/').pop() || null,
+              fileSize: null,
+              createdAt: now,
+            },
+          ]
+        : [],
       createdAt: now,
       updatedAt: now,
+    }
+    if (message.attachments[0]) {
+      message.attachments[0].messageId = message.id
     }
 
     convMessages.push(message)
@@ -1091,6 +1113,17 @@ export class ConversationService {
           ${message.createdAt}, ${message.updatedAt}
         )
       `
+
+      if (payload.mediaUrl && message.attachments[0]) {
+        await sql`
+          INSERT INTO attachments (
+            id, message_id, file_type, file_url, file_size, file_name, created_at
+          ) VALUES (
+            ${message.attachments[0].id}, ${message.id}, ${message.attachments[0].fileType},
+            ${payload.mediaUrl}, null, ${message.attachments[0].fileName}, ${now}
+          )
+        `
+      }
     } catch {
       // Memory fallback
     }
@@ -1110,6 +1143,8 @@ export class ConversationService {
         content: message.content || '',
         messageType: message.messageType,
         contentType: message.contentType,
+        mediaUrl: payload.mediaUrl || undefined,
+        attachments: message.attachments,
         senderId: message.senderId,
         senderType: message.senderType,
         senderName: 'WhatsApp HP',

@@ -201,7 +201,9 @@ export class BaileysSession {
           quotedText: event.quotedText,
           quotedParticipant: event.quotedParticipant,
           messageType: event.messageType,
-          contentType: event.messageType === 'image' ? 'image' : undefined,
+          contentType: ['image', 'document', 'video', 'audio'].includes(event.messageType)
+            ? event.messageType
+            : undefined,
           content: event.content,
           mediaUrl,
           timestamp: event.timestamp,

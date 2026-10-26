@@ -424,7 +424,13 @@ export function useConversationChat({ user, initialConversationId }: UseConversa
           (rawMsg.messageType === 'image' || anyEvt.messageType === 'image'
             ? 'image'
             : 'text')) as ContentType,
-        mediaUrl: rawMsg.mediaUrl || anyEvt.mediaUrl || attrs.mediaUrl,
+        mediaUrl:
+          rawMsg.mediaUrl ||
+          anyEvt.mediaUrl ||
+          attrs.mediaUrl ||
+          (Array.isArray(rawMsg.attachments) && rawMsg.attachments[0]?.fileUrl) ||
+          (Array.isArray(anyEvt.attachments) && anyEvt.attachments[0]?.fileUrl) ||
+          undefined,
         senderId: rawMsg.senderId || anyEvt.contact?.id || anyEvt.senderId,
         senderType: isCustomer ? 'contact' : rawMsg.senderType || anyEvt.senderType || 'user',
         senderName,

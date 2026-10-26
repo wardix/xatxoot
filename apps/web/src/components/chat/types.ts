@@ -67,4 +67,11 @@ export interface TimelineMessage {
   isForwarded?: boolean
   mentions?: MessageMention[]
   isMentioningMe?: boolean
+  attachments?: Array<{
+    id?: string
+    fileUrl: string
+    fileType?: string
+    fileName?: string | null
+    fileSize?: number | null
+  }>
 }
