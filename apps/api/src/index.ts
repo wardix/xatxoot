@@ -46,8 +46,9 @@ import { whatsappCloudWebhookRoutes } from './modules/webhooks/whatsapp-cloud.we
 import { whatsappUnofficialWebhookRoutes } from './modules/webhooks/whatsapp-unofficial.webhook.routes'
 import { whatsappTemplateRoutes } from './modules/whatsapp-templates/whatsapp-templates.routes'
 import { widgetRoutes } from './modules/widget/widget.routes'
+import { openApiApp } from './openapi/openapi'
 
-const app = new Hono()
+const app = openApiApp()
 
 app.use('*', requestIdMiddleware)
 
@@ -78,6 +79,9 @@ app.use(
   secureHeaders({
     contentSecurityPolicy: {
       defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
     },
   }),
 )
